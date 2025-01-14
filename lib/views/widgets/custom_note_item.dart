@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:notes_app/cubits/notes_cubit/notes_cubit.dart';
+import 'package:notes_app/models/note_model.dart';
 import 'package:notes_app/views/edit_notes_view.dart';
 
 class NoteItem extends StatelessWidget {
-  const NoteItem({super.key});
+  const NoteItem({super.key, required this.note});
+  final NoteModel note;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return EditNotesView();
+          return EditNotesView(note: note);
         }));
       },
       child: Container(
@@ -20,7 +24,8 @@ class NoteItem extends StatelessWidget {
           left: 18,
         ),
         decoration: BoxDecoration(
-            color: Color(0xffFFCC80), borderRadius: BorderRadius.circular(16)),
+          color: Color(note.color) ,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -28,18 +33,27 @@ class NoteItem extends StatelessWidget {
               title: Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: Text(
-                  'Flutter tips',
-                  style: TextStyle(fontSize: 26, color: Colors.black),
+                  note.title,
+                  style: const TextStyle(fontSize: 26, color: Colors.black),
                 ),
               ),
               subtitle: Text(
-                'Build your career with tharwat samy ',
+                note.subTitle,
                 style: TextStyle(
                     color: Colors.black.withOpacity(0.5), fontSize: 18),
               ),
               trailing: IconButton(
-                onPressed: () {},
-                icon: Icon(
+                onPressed: () {
+                  note.delete();
+                  BlocProvider.of<NotesCubit>(context).fetchAllNotes();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Note  deleted'),
+                    ),
+                  );
+                },
+                icon: const Icon(
                   FontAwesomeIcons.trash,
                   color: Colors.black,
                   size: 22,
@@ -49,7 +63,7 @@ class NoteItem extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 24),
               child: Text(
-                'Nov11 , 2024',
+                note.date,
                 style: TextStyle(
                     color: Colors.black.withOpacity(0.5), fontSize: 16),
               ),
